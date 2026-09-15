@@ -21,12 +21,29 @@ next programs will be install:
 "
 read -p 'Please connect to the internet and press [ENTER] to continue '
 
-echo '[+] Installing Flatpak and Microsoft fronts'
+echo '[+] Installing Flatpak'
 dnf install -y flatpak curl cabextract xorg-x11-font-utils
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-
-rpm -i https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm || true
 echo '[+] Success'
+
+
+echo '[+] Installing Microsoft Core Fonts'
+dnf install -y cabextract fontconfig
+mkdir -p /usr/share/fonts/msfonts
+cd /tmp
+
+curl -L -s -O https://downloads.sourceforge.net/project/corefonts/the%20fonts/final/times32.exe
+curl -L -s -O https://downloads.sourceforge.net/project/corefonts/the%20fonts/final/arial32.exe
+curl -L -s -O https://downloads.sourceforge.net/project/corefonts/the%20fonts/final/verdan32.exe
+
+cabextract *.exe -d /usr/share/fonts/msfonts/ > /dev/null 2>&1
+chmod 644 /usr/share/fonts/msfonts/*
+rm -f /tmp/*.exe
+
+fc-cache -f
+flatpak override --system --filesystem=/usr/share/fonts:ro
+echo '[+] Fonts installed successfully'
+
 
 PROGRAMS=(
 'org.telegram.desktop'
